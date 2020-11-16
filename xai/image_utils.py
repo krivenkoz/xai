@@ -1,6 +1,9 @@
 """
                 Image utils
 
+compress_nadia - ready
+compress_zlib - ready
+plot_numpy2D - ready
 convert_numpy_to_binary - ready
 convert_difftxt_to_numpy - ready
 addNoiseCorrect - ready
@@ -10,7 +13,7 @@ convert2D2matlab - ready
 
 
 Version: 2.0
-Status: 
+Status: ready
 2020/11/10
 By Krivenko S.S.
 """
@@ -23,8 +26,65 @@ from sklearn.metrics import mean_squared_error
 import matlab
 import psnrhvsm as p
 from matplotlib import pyplot as plt
+import zlib
 
-# -------------------------------- [ convert_numpy_to_binary ] -------------------------------- #
+# -------------------------------- [ compress_nadia ] -------------------------------- #
+def compress_nadia(path_to_coder, fname, zip_name):
+    """
+    Compress binary using compr05.exe
+
+    Args:        
+        fname: source binary filename
+        zip_name: compressed filename
+
+    Returns:
+        fname_size: size of source binary filename
+        zip_name_size: size of compressed filename
+        CR: compression ratio
+    """
+    full_path_fname = os.path.join(os.getcwd(), fname)
+    full_path_zip_name = os.path.join(os.getcwd(), zip_name)
+    full_path_coder = path_to_coder + 'compr05.exe'
+
+    argsLine = [full_path_fname + ' ' + full_path_zip_name]
+    cmd = [full_path_coder, argsLine]
+    subprocess.check_call(cmd)    
+
+    fname_size = os.path.getsize(fname)
+    zip_name_size = os.path.getsize(zip_name)
+    
+    os.remove(zip_name)
+
+    return fname_size, zip_name_size, fname_size / zip_name_size
+# -------------------------------- [ ] -------------------------------- #
+
+# -------------------------------- [ compress_zlib ] -------------------------------- #
+def compress_zlib(fname, zip_name):
+    """
+    Compress binary using ZLIB
+
+    Args:        
+        fname: source binary filename
+        zip_name: compressed filename
+
+    Returns:
+        fname_size: size of source binary filename
+        zip_name_size: size of compressed filename
+        CR: compression ratio
+    """
+    str_object1 = open(fname, 'rb').read()
+    str_object2 = zlib.compress(str_object1, 9)
+    f = open(zip_name, 'wb')
+    f.write(str_object2)
+    f.close()
+    fname_size = os.path.getsize(fname)
+    zip_name_size = os.path.getsize(zip_name)
+    
+    os.remove(zip_name)
+    return fname_size, zip_name_size, fname_size / zip_name_size
+# -------------------------------- [ ] -------------------------------- #
+
+# -------------------------------- [ plot_numpy2D ] -------------------------------- #
 def plot_numpy2D(inarray, pedestal=127):
     """
     Show binary image
@@ -67,7 +127,7 @@ def convert_difftxt_to_numpy(txt_name):
 
     Returns:
         out: output 2D numpy array
-    """    
+    """
     out = np.loadtxt(txt_name)
     return out
 # -------------------------------- [ ] -------------------------------- #
